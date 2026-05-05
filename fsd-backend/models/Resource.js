@@ -9,22 +9,31 @@ const resourceSchema = new mongoose.Schema(
     description: {
       type: String,
     },
-    isAllocated: {
-      type: Boolean,
-      default: false,
+    totalUnits: {
+      type: Number,
+      required: true,
+      default: 1,
+      min: 1,
     },
-    allocatedTo: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      default: null,
+    availableUnits: {
+      type: Number,
+      required: true,
+      default: 0,
+      min: 0,
     },
   },
   { timestamps: true }
 );
 
+// Set availableUnits to totalUnits when creating a new resource
+resourceSchema.pre('save', function() {
+  if (this.isNew && !this.availableUnits) {
+    this.availableUnits = this.totalUnits;
+  }
+});
+
 // Indexes for better query performance
-resourceSchema.index({ isAllocated: 1 });
-resourceSchema.index({ allocatedTo: 1 });
+resourceSchema.index({ availableUnits: 1 });
 resourceSchema.index({ createdAt: -1 });
 resourceSchema.index({ name: 'text', description: 'text' });
 

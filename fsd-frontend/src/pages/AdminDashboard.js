@@ -14,7 +14,7 @@ function AdminDashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [showResourceForm, setShowResourceForm] = useState(false);
-  const [newResource, setNewResource] = useState({ name: '', description: '' });
+  const [newResource, setNewResource] = useState({ name: '', description: '', totalUnits: 1 });
   const [requestFilter, setRequestFilter] = useState('all');
 
   useEffect(() => {
@@ -256,6 +256,17 @@ function AdminDashboard() {
                     rows={4}
                   />
                 </div>
+                <div className="form-group">
+                  <label>Total Units *</label>
+                  <input
+                    type="number"
+                    value={newResource.totalUnits}
+                    onChange={(e) => setNewResource({ ...newResource, totalUnits: parseInt(e.target.value) || 1 })}
+                    required
+                    min="1"
+                    placeholder="Number of units"
+                  />
+                </div>
                 <div className="form-actions">
                   <button type="submit" className="btn-success">Create Resource</button>
                   <button 
@@ -279,28 +290,39 @@ function AdminDashboard() {
               />
             ) : (
               <div className="resources-grid">
-                {resources.map((resource) => (
-                  <div key={resource._id} className="resource-card">
-                    <div className="resource-header">
-                      <h3>{resource.name}</h3>
-                      <span className={`badge ${resource.isAllocated ? 'allocated' : 'available'}`}>
-                        {resource.isAllocated ? '✓ Allocated' : '○ Available'}
-                      </span>
+                {resources.map((resource) => {
+                  const stockStatus = resource.availableUnits === 0 
+                    ? { color: '#dc3545', label: 'Out of Stock' }
+                    : resource.availableUnits <= 5
+                    ? { color: '#ffc107', label: `Low Stock (${resource.availableUnits})` }
+                    : { color: '#28a745', label: `In Stock (${resource.availableUnits}/${resource.totalUnits})` };
+
+                  return (
+                    <div key={resource._id} className="resource-card">
+                      <div className="resource-header">
+                        <h3>{resource.name}</h3>
+                        <span 
+                          className="stock-badge"
+                          style={{ backgroundColor: stockStatus.color }}
+                        >
+                          {stockStatus.label}
+                        </span>
+                      </div>
+                      <p className="resource-description">{resource.description}</p>
+                      <div className="resource-stats">
+                        <p><strong>Total Units:</strong> {resource.totalUnits}</p>
+                        <p><strong>Available:</strong> {resource.availableUnits}</p>
+                        <p><strong>Allocated:</strong> {resource.totalUnits - resource.availableUnits}</p>
+                      </div>
+                      <button 
+                        className="btn-danger btn-small" 
+                        onClick={() => handleDeleteResource(resource._id)}
+                      >
+                        🗑️ Delete
+                      </button>
                     </div>
-                    <p className="resource-description">{resource.description}</p>
-                    {resource.allocatedTo && (
-                      <p className="resource-allocated-to">
-                        <strong>Allocated to:</strong> {resource.allocatedTo.name}
-                      </p>
-                    )}
-                    <button 
-                      className="btn-danger btn-small" 
-                      onClick={() => handleDeleteResource(resource._id)}
-                    >
-                      🗑️ Delete
-                    </button>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>
@@ -340,6 +362,7 @@ function AdminDashboard() {
                     <tr>
                       <th>User</th>
                       <th>Resource</th>
+                      <th>Quantity</th>
                       <th>Status</th>
                       <th>Date</th>
                       <th>Actions</th>
@@ -350,6 +373,7 @@ function AdminDashboard() {
                       <tr key={request._id}>
                         <td>{request.user?.name || 'N/A'}</td>
                         <td>{request.resource?.name || 'N/A'}</td>
+                        <td className="quantity-col">{request.quantity || 1} unit(s)</td>
                         <td>
                           <span className={`status-badge ${getStatusColor(request.status)}`}>
                             {getStatusText(request.status)}

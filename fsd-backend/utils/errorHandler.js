@@ -9,6 +9,8 @@ class AppError extends Error {
 
 // Error handling middleware
 const errorHandler = (err, req, res, next) => {
+  // Log full error for debugging
+  console.error('Unhandled error caught by errorHandler:', err && err.stack ? err.stack : err);
   err.statusCode = err.statusCode || 500;
   err.message = err.message || 'Internal Server Error';
 

@@ -80,7 +80,7 @@ export const requestService = {
     api.get('/requests', { params: { page, limit, status } }),
   getRequest: (id) => api.get(`/requests/${id}`),
   getUserRequests: () => api.get('/requests/my-requests'),
-  createRequest: (resourceId) => api.post('/requests', { resourceId }),
+  createRequest: (resourceId, quantity = 1) => api.post('/requests', { resourceId, quantity }),
   approveRequest: (id) => api.put(`/requests/${id}/approve`),
   rejectRequest: (id) => api.put(`/requests/${id}/reject`),
 };

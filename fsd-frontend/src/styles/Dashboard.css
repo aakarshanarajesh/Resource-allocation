@@ -609,6 +609,132 @@
   margin-right: 5px;
 }
 
+/* Stock Badge */
+.stock-badge {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: white;
+  white-space: nowrap;
+}
+
+/* Quantity Selector */
+.quantity-selector {
+  margin: 16px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.quantity-selector label {
+  font-weight: 600;
+  font-size: 13px;
+  color: #333;
+}
+
+.qty-input-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: center;
+}
+
+.qty-btn {
+  padding: 6px 12px;
+  background-color: #f0f0f0;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 16px;
+  transition: all 0.2s ease;
+  color: #333;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.qty-btn:hover:not(:disabled) {
+  background-color: #e0e0e0;
+  border-color: #999;
+}
+
+.qty-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.qty-input {
+  width: 60px;
+  padding: 8px;
+  text-align: center;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.qty-input:focus {
+  outline: none;
+  border-color: #ff9d7f;
+  box-shadow: 0 0 0 3px rgba(255, 157, 127, 0.1);
+}
+
+/* Resource Stats */
+.resource-stats {
+  background-color: #f8f9fa;
+  padding: 12px;
+  border-radius: 4px;
+  margin: 12px 0;
+  font-size: 13px;
+}
+
+.resource-stats p {
+  margin: 6px 0;
+  color: #555;
+}
+
+.resource-stats strong {
+  color: #333;
+}
+
+/* Quantity Column in Table */
+.quantity-col {
+  font-weight: 600;
+  color: #333;
+}
+
+/* No Data Message */
+.no-data {
+  text-align: center;
+  color: #999;
+  padding: 40px 20px;
+  font-style: italic;
+}
+
+/* Status Badges with New Colors */
+.status-badge.pending,
+.status-badge.PENDING {
+  background-color: #fff3cd;
+  color: #333;
+}
+
+.status-badge.approved,
+.status-badge.APPROVED {
+  background-color: #d4edda;
+  color: #333;
+}
+
+.status-badge.rejected,
+.status-badge.REJECTED {
+  background-color: #f8d7da;
+  color: #333;
+}
+
 .error-message {
   background-color: #f8d7da;
   color: #333;

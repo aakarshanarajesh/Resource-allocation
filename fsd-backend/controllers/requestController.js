@@ -2,18 +2,20 @@ const requestService = require("../services/requestService");
 const resourceService = require("../services/resourceService");
 const { asyncHandler, AppError } = require("../utils/errorHandler");
 
-// USER requests resource
+// USER requests resource with quantity
 exports.requestResource = asyncHandler(async (req, res) => {
-  const { resourceId } = req.body;
+  const { resourceId, quantity = 1 } = req.body;
   const userId = req.user.id;
 
-  // Verify resource exists and is available
+  // Verify resource exists
   const resource = await resourceService.getResourceById(resourceId);
-  if (resource.isAllocated) {
-    throw new AppError("Resource is already allocated", 400);
+  
+  // Check availability
+  if (resource.availableUnits < quantity) {
+    throw new AppError(`Not enough units available. Available: ${resource.availableUnits}, Requested: ${quantity}`, 400);
   }
 
-  const request = await requestService.createRequest(userId, resourceId);
+  const request = await requestService.createRequest(userId, resourceId, quantity);
 
   res.status(201).json({
     success: true,
@@ -59,27 +61,32 @@ exports.getRequest = asyncHandler(async (req, res) => {
   });
 });
 
-// ADMIN approves request
+// ADMIN approves request and reduces available units
 exports.approveRequest = asyncHandler(async (req, res) => {
-  const request = await requestService.approveRequest(req.params.id);
+  try {
+    const request = await requestService.approveRequest(req.params.id);
 
-  // Allocate resource to user
-  await resourceService.allocateResource(request.resource._id, request.user._id);
-
-  res.json({
-    success: true,
-    message: "Request approved successfully",
-    request,
-  });
+    res.json({
+      success: true,
+      message: "Request approved successfully and stock updated",
+      request,
+    });
+  } catch (error) {
+    throw new AppError(error.message, 400);
+  }
 });
 
 // ADMIN rejects request
 exports.rejectRequest = asyncHandler(async (req, res) => {
-  const request = await requestService.rejectRequest(req.params.id);
+  try {
+    const request = await requestService.rejectRequest(req.params.id);
 
-  res.json({
-    success: true,
-    message: "Request rejected successfully",
-    request,
-  });
+    res.json({
+      success: true,
+      message: "Request rejected successfully",
+      request,
+    });
+  } catch (error) {
+    throw new AppError(error.message, 400);
+  }
 });

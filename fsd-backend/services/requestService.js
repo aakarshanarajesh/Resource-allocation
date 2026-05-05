@@ -1,6 +1,7 @@
 const Request = require('../models/Request');
 const Notification = require('../models/Notification');
 const ActivityLog = require('../models/ActivityLog');
+const resourceService = require('./resourceService');
 
 class RequestService {
   // Get all requests with filters
@@ -13,7 +14,7 @@ class RequestService {
 
     const requests = await Request.find(query)
       .populate('user', 'name email')
-      .populate('resource', 'name description')
+      .populate('resource', 'name description totalUnits availableUnits')
       .skip(skip)
       .limit(limit)
       .sort({ createdAt: -1 });
@@ -33,27 +34,39 @@ class RequestService {
   // Get user requests
   async getUserRequests(userId) {
     const requests = await Request.find({ user: userId })
-      .populate('resource', 'name description')
+      .populate('resource', 'name description totalUnits availableUnits')
       .sort({ createdAt: -1 });
     return requests;
   }
 
-  // Create request
-  async createRequest(userId, resourceId) {
+  // Create request with quantity validation
+  async createRequest(userId, resourceId, quantity = 1) {
+    // Validate quantity
+    if (quantity < 1) {
+      throw new Error('Quantity must be at least 1');
+    }
+
+    // Check resource availability
+    const resource = await resourceService.getResourceById(resourceId);
+    if (resource.availableUnits < quantity) {
+      throw new Error(`Not enough units available. Available: ${resource.availableUnits}, Requested: ${quantity}`);
+    }
+
     const request = await Request.create({
       user: userId,
       resource: resourceId,
+      quantity,
       status: 'PENDING',
     });
 
     await request.populate('user', 'name email');
-    await request.populate('resource', 'name description');
+    await request.populate('resource', 'name description totalUnits availableUnits');
 
     // Log activity
     await ActivityLog.create({
       userId,
       action: 'REQUEST_CREATED',
-      description: `Created request for resource`,
+      description: `Created request for ${quantity} unit(s) of resource`,
       entityType: 'Request',
       entityId: request._id,
     });
@@ -61,77 +74,103 @@ class RequestService {
     return request;
   }
 
-  // Approve request
+  // Approve request and reduce available units
   async approveRequest(requestId) {
-    const request = await Request.findByIdAndUpdate(
-      requestId,
-      { status: 'APPROVED' },
-      { new: true }
-    ).populate('user', 'name email').populate('resource', 'name description');
+    const request = await Request.findById(requestId)
+      .populate('user', 'name email')
+      .populate('resource', 'name description totalUnits availableUnits');
 
     if (!request) {
       throw new Error('Request not found');
     }
 
+    if (request.status !== 'PENDING') {
+      throw new Error(`Cannot approve request with status: ${request.status}`);
+    }
+
+    // Final availability check before approval
+    if (request.resource.availableUnits < request.quantity) {
+      throw new Error(`Cannot approve: Only ${request.resource.availableUnits} units available, but ${request.quantity} requested`);
+    }
+
+    // Reduce available units
+    await resourceService.reduceAvailableUnits(request.resource._id, request.quantity);
+
+    // Update request status
+    const updatedRequest = await Request.findByIdAndUpdate(
+      requestId,
+      { status: 'APPROVED' },
+      { new: true }
+    ).populate('user', 'name email').populate('resource', 'name description totalUnits availableUnits');
+
     // Create notification
     await Notification.create({
       user: request.user._id,
       title: 'Request Approved',
-      message: `Your request for ${request.resource.name} has been approved`,
+      message: `Your request for ${request.quantity} unit(s) of ${request.resource.name} has been approved`,
       type: 'APPROVAL',
-      relatedRequest: request._id,
+      relatedRequest: requestId,
     });
 
     // Log activity
     await ActivityLog.create({
       userId: request.user._id,
       action: 'REQUEST_APPROVED',
-      description: `Request approved for ${request.resource.name}`,
+      description: `Request approved for ${request.quantity} unit(s) of ${request.resource.name}`,
       entityType: 'Request',
-      entityId: request._id,
+      entityId: requestId,
     });
 
-    return request;
+    return updatedRequest;
   }
 
-  // Reject request
+  // Reject request and restore available units
   async rejectRequest(requestId) {
-    const request = await Request.findByIdAndUpdate(
-      requestId,
-      { status: 'REJECTED' },
-      { new: true }
-    ).populate('user', 'name email').populate('resource', 'name description');
+    const request = await Request.findById(requestId)
+      .populate('user', 'name email')
+      .populate('resource', 'name description totalUnits availableUnits');
 
     if (!request) {
       throw new Error('Request not found');
     }
 
+    if (request.status !== 'PENDING') {
+      throw new Error(`Cannot reject request with status: ${request.status}`);
+    }
+
+    // Update request status
+    const updatedRequest = await Request.findByIdAndUpdate(
+      requestId,
+      { status: 'REJECTED' },
+      { new: true }
+    ).populate('user', 'name email').populate('resource', 'name description totalUnits availableUnits');
+
     // Create notification
     await Notification.create({
       user: request.user._id,
       title: 'Request Rejected',
-      message: `Your request for ${request.resource.name} has been rejected`,
+      message: `Your request for ${request.quantity} unit(s) of ${request.resource.name} has been rejected`,
       type: 'REJECTION',
-      relatedRequest: request._id,
+      relatedRequest: requestId,
     });
 
     // Log activity
     await ActivityLog.create({
       userId: request.user._id,
       action: 'REQUEST_REJECTED',
-      description: `Request rejected for ${request.resource.name}`,
+      description: `Request rejected for ${request.quantity} unit(s) of ${request.resource.name}`,
       entityType: 'Request',
-      entityId: request._id,
+      entityId: requestId,
     });
 
-    return request;
+    return updatedRequest;
   }
 
   // Get request by ID
   async getRequestById(requestId) {
     const request = await Request.findById(requestId)
       .populate('user', 'name email')
-      .populate('resource', 'name description');
+      .populate('resource', 'name description totalUnits availableUnits');
 
     if (!request) {
       throw new Error('Request not found');

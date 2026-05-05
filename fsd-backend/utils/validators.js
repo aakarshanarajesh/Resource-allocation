@@ -12,7 +12,7 @@ const validate = (req, res, next) => {
       })),
     });
   }
-  next();
+  return next();
 };
 
 // Auth validations
@@ -53,10 +53,14 @@ const validateResource = [
     .isLength({ min: 3 })
     .withMessage('Name must be at least 3 characters'),
   body('description')
-    .optional()
+    .optional({ checkFalsy: true })
     .trim()
     .isLength({ min: 5 })
     .withMessage('Description must be at least 5 characters'),
+  body('totalUnits')
+    .optional({ checkFalsy: true })
+    .isInt({ min: 1 })
+    .withMessage('Total units must be a positive integer'),
 ];
 
 // Request validations
@@ -64,6 +68,10 @@ const validateRequestCreate = [
   body('resourceId')
     .isMongoId()
     .withMessage('Invalid resource ID'),
+  body('quantity')
+    .optional({ checkFalsy: true })
+    .isInt({ min: 1 })
+    .withMessage('Quantity must be a positive integer'),
 ];
 
 module.exports = {

@@ -14,9 +14,9 @@ const authMiddleware = (req, res, next) => {
 
     const decoded = authService.verifyAccessToken(token);
     req.user = decoded;
-    next();
+    return next();
   } catch (error) {
-    res.status(401).json({ 
+    return res.status(401).json({ 
       success: false,
       message: error.message || "Invalid token" 
     });
@@ -31,7 +31,7 @@ const adminMiddleware = (req, res, next) => {
       message: 'Access denied. Admin privileges required.'
     });
   }
-  next();
+  return next();
 };
 
 module.exports = { authMiddleware, adminMiddleware };

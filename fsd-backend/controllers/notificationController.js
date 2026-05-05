@@ -47,19 +47,14 @@ exports.markAsRead = asyncHandler(async (req, res) => {
   const userId = req.user.id;
   const { notificationId } = req.params;
 
-  const notification = await Notification.findByIdAndUpdate(
-    notificationId,
+  const notification = await Notification.findOneAndUpdate(
+    { _id: notificationId, user: userId },
     { isRead: true },
     { new: true }
   );
 
   if (!notification) {
     throw new AppError("Notification not found", 404);
-  }
-
-  // Verify ownership
-  if (notification.user.toString() !== userId) {
-    throw new AppError("Unauthorized", 403);
   }
 
   res.json({

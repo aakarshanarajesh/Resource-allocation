@@ -12,6 +12,12 @@ const allocationRequestSchema = new mongoose.Schema(
       ref: "Resource",
       required: true,
     },
+    quantity: {
+      type: Number,
+      required: true,
+      default: 1,
+      min: 1,
+    },
     status: {
       type: String,
       enum: ["PENDING", "APPROVED", "REJECTED"],
@@ -20,5 +26,10 @@ const allocationRequestSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+// Index for querying requests by user and resource
+allocationRequestSchema.index({ userId: 1, resourceId: 1 });
+allocationRequestSchema.index({ status: 1 });
+allocationRequestSchema.index({ createdAt: -1 });
 
 module.exports = mongoose.model("AllocationRequest", allocationRequestSchema);

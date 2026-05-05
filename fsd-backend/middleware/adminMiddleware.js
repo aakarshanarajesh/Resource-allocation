@@ -3,9 +3,9 @@ const adminMiddleware = (req, res, next) => {
     if (req.user.role !== "ADMIN") {
       return res.status(403).json({ message: "Access denied. Admin only." });
     }
-    next();
+    return next();
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    return res.status(500).json({ message: error.message });
   }
 };
 

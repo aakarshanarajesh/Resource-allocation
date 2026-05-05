@@ -16,8 +16,8 @@ router.use(authMiddleware);
 
 router.get("/", getNotifications);
 router.get("/unread/count", getUnreadCount);
-router.put("/:notificationId/read", markAsRead);
 router.put("/mark-all/read", markAllAsRead);
+router.put("/:notificationId/read", markAsRead);
 router.delete("/:notificationId", deleteNotification);
 
 module.exports = router;

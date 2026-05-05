@@ -3,9 +3,9 @@ const { asyncHandler, AppError } = require("../utils/errorHandler");
 
 // CREATE RESOURCE
 exports.createResource = asyncHandler(async (req, res) => {
-  const { name, description } = req.body;
+  const { name, description, totalUnits = 1 } = req.body;
 
-  const resource = await resourceService.createResource(name, description);
+  const resource = await resourceService.createResource(name, description, totalUnits);
 
   res.status(201).json({
     success: true,
@@ -27,7 +27,7 @@ exports.getResources = asyncHandler(async (req, res) => {
   });
 });
 
-// GET AVAILABLE RESOURCES
+// GET AVAILABLE RESOURCES (with availableUnits > 0)
 exports.getAvailableResources = asyncHandler(async (req, res) => {
   const resources = await resourceService.getAvailableResources();
 
