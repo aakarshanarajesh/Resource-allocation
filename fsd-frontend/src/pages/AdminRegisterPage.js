@@ -9,7 +9,6 @@ function AdminRegisterPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [adminSecret, setAdminSecret] = useState('');
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -34,10 +33,6 @@ function AdminRegisterPage() {
       newErrors.confirmPassword = 'Passwords do not match';
     }
 
-    if (!adminSecret.trim()) {
-      newErrors.adminSecret = 'Admin secret is required';
-    }
-
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       return;
@@ -47,7 +42,7 @@ function AdminRegisterPage() {
     setLoading(true);
 
     try {
-      await authService.registerAdmin(name, email, password, adminSecret);
+      await authService.registerAdmin(name, email, password);
       navigate('/login');
     } catch (err) {
       if (err.response?.data?.errors && Array.isArray(err.response.data.errors)) {
@@ -132,19 +127,6 @@ function AdminRegisterPage() {
                 className={errors.confirmPassword ? 'error' : ''}
               />
               {errors.confirmPassword && <span className="error-text">{errors.confirmPassword}</span>}
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="admin-secret">Admin Secret</label>
-              <input
-                id="admin-secret"
-                type="password"
-                value={adminSecret}
-                placeholder="Enter admin secret"
-                onChange={(e) => setAdminSecret(e.target.value)}
-                className={errors.adminSecret ? 'error' : ''}
-              />
-              {errors.adminSecret && <span className="error-text">{errors.adminSecret}</span>}
             </div>
 
             <button type="submit" disabled={loading}>
