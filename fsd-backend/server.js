@@ -9,6 +9,7 @@ const { errorHandler, asyncHandler } = require("./utils/errorHandler");
 const { apiLimiter } = require("./middleware/rateLimiter");
 
 dotenv.config();
+console.log("JWT_SECRET:", process.env.JWT_SECRET);
 
 const app = express();
 
