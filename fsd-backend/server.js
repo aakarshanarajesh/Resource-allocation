@@ -11,6 +11,7 @@ const { apiLimiter } = require("./middleware/rateLimiter");
 dotenv.config();
 process.env.JWT_SECRET = process.env.JWT_SECRET || "mysecretkey123";
 process.env.JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || "refresh_secretkey_change_this";
+process.env.ADMIN_SECRET = process.env.ADMIN_SECRET || "admin123secure";
 
 const app = express();
 

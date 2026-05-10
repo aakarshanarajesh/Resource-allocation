@@ -58,6 +58,10 @@ api.interceptors.response.use(
 export const authService = {
   login: (email, password) => api.post('/api/auth/login', { email, password }),
   register: (name, email, password) => api.post('/api/auth/register', { name, email, password }),
+  registerAdmin: (name, email, password, adminSecret) =>
+    api.post('/api/auth/register-admin', { name, email, password }, {
+      headers: { 'x-admin-secret': adminSecret },
+    }),
   refreshToken: (refreshToken) => api.post('/api/auth/refresh-token', { refreshToken }),
   getCurrentUser: () => api.get('/api/auth/me'),
   logout: () => api.post('/api/auth/logout'),

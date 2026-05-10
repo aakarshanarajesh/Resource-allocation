@@ -4,11 +4,12 @@ import { authService } from '../services/api';
 import LoadingSpinner from '../components/UI/LoadingSpinner';
 import '../styles/Auth.css';
 
-function RegisterPage() {
+function AdminRegisterPage() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [adminSecret, setAdminSecret] = useState('');
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -33,6 +34,10 @@ function RegisterPage() {
       newErrors.confirmPassword = 'Passwords do not match';
     }
 
+    if (!adminSecret.trim()) {
+      newErrors.adminSecret = 'Admin secret is required';
+    }
+
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       return;
@@ -42,15 +47,14 @@ function RegisterPage() {
     setLoading(true);
 
     try {
-      await authService.register(name, email, password);
+      await authService.registerAdmin(name, email, password, adminSecret);
       navigate('/login');
     } catch (err) {
-      // Handle validation errors array
       if (err.response?.data?.errors && Array.isArray(err.response.data.errors)) {
-        const errorMessages = err.response.data.errors.map(e => e.message).join('. ');
+        const errorMessages = err.response.data.errors.map((error) => error.message).join('. ');
         setErrors({ form: errorMessages });
       } else {
-        setErrors({ form: err.response?.data?.message || 'Registration failed. Please try again.' });
+        setErrors({ form: err.response?.data?.message || 'Admin registration failed. Please try again.' });
       }
     } finally {
       setLoading(false);
@@ -62,101 +66,89 @@ function RegisterPage() {
   return (
     <div className="auth-container">
       <div className="auth-card">
-        {/* Left Illustration Side */}
         <div className="auth-illustration">
           <div className="auth-illustration-content">
-            <div className="auth-illustration-icon">✨</div>
-            <h2>Join Us</h2>
-            <p>Create an account to get started with managing your resources</p>
+            <div className="auth-illustration-icon">Admin</div>
+            <h2>Admin Access</h2>
+            <p>Create an administrator account for managing resources and requests</p>
           </div>
         </div>
 
-        {/* Right Form Side */}
         <div className="auth-form-container">
           <div className="auth-header">
-            <h1>Create Account</h1>
+            <h1>Create Admin Account</h1>
           </div>
 
           {errors.form && <div className="error-message">{errors.form}</div>}
 
           <form onSubmit={handleSubmit} className="auth-form">
             <div className="form-group">
-              <label htmlFor="name">Full Name</label>
+              <label htmlFor="admin-name">Full Name</label>
               <input
-                id="name"
+                id="admin-name"
                 type="text"
                 value={name}
-                placeholder="John Doe"
-                onChange={(e) => {
-                  setName(e.target.value);
-                  if (errors.name) {
-                    setErrors({ ...errors, name: '' });
-                  }
-                }}
+                placeholder="Admin Name"
+                onChange={(e) => setName(e.target.value)}
                 className={errors.name ? 'error' : ''}
               />
-              {errors.name && <span className="error-text">⚠️ {errors.name}</span>}
+              {errors.name && <span className="error-text">{errors.name}</span>}
             </div>
 
             <div className="form-group">
-              <label htmlFor="email">Email Address</label>
+              <label htmlFor="admin-email">Email Address</label>
               <input
-                id="email"
+                id="admin-email"
                 type="email"
                 value={email}
-                placeholder="example@email.com"
-                onChange={(e) => {
-                  setEmail(e.target.value);
-                  if (errors.email) {
-                    setErrors({ ...errors, email: '' });
-                  }
-                }}
+                placeholder="admin@example.com"
+                onChange={(e) => setEmail(e.target.value)}
                 className={errors.email ? 'error' : ''}
               />
-              {errors.email && <span className="error-text">⚠️ {errors.email}</span>}
+              {errors.email && <span className="error-text">{errors.email}</span>}
             </div>
 
             <div className="form-group">
-              <label htmlFor="password">Password</label>
+              <label htmlFor="admin-password">Password</label>
               <input
-                id="password"
+                id="admin-password"
                 type="password"
                 value={password}
-                placeholder="••••••••"
-                onChange={(e) => {
-                  setPassword(e.target.value);
-                  if (errors.password) {
-                    setErrors({ ...errors, password: '' });
-                  }
-                }}
+                placeholder="Password"
+                onChange={(e) => setPassword(e.target.value)}
                 className={errors.password ? 'error' : ''}
               />
-              {errors.password && <span className="error-text">⚠️ {errors.password}</span>}
-              <small style={{ color: '#999', fontSize: '12px', marginTop: '4px', display: 'block' }}>
-                Must be at least 6 characters with uppercase and number
-              </small>
+              {errors.password && <span className="error-text">{errors.password}</span>}
             </div>
 
             <div className="form-group">
-              <label htmlFor="confirmPassword">Confirm Password</label>
+              <label htmlFor="admin-confirm-password">Confirm Password</label>
               <input
-                id="confirmPassword"
+                id="admin-confirm-password"
                 type="password"
                 value={confirmPassword}
-                placeholder="••••••••"
-                onChange={(e) => {
-                  setConfirmPassword(e.target.value);
-                  if (errors.confirmPassword) {
-                    setErrors({ ...errors, confirmPassword: '' });
-                  }
-                }}
+                placeholder="Confirm password"
+                onChange={(e) => setConfirmPassword(e.target.value)}
                 className={errors.confirmPassword ? 'error' : ''}
               />
-              {errors.confirmPassword && <span className="error-text">⚠️ {errors.confirmPassword}</span>}
+              {errors.confirmPassword && <span className="error-text">{errors.confirmPassword}</span>}
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="admin-secret">Admin Secret</label>
+              <input
+                id="admin-secret"
+                type="password"
+                value={adminSecret}
+                placeholder="Enter admin secret"
+                onChange={(e) => setAdminSecret(e.target.value)}
+                className={errors.adminSecret ? 'error' : ''}
+              />
+              {errors.adminSecret && <span className="error-text">{errors.adminSecret}</span>}
             </div>
 
             <button type="submit" disabled={loading}>
-              {loading ? 'Creating Account...' : 'REGISTER'}
+              {loading ? 'Creating Admin...' : 'Create Admin'}
             </button>
           </form>
 
@@ -164,7 +156,7 @@ function RegisterPage() {
             Already have an account? <Link to="/login">Login here</Link>
           </p>
           <p className="auth-link">
-            Creating an admin? <Link to="/admin-register">Use admin signup</Link>
+            Need a user account? <Link to="/register">User signup</Link>
           </p>
         </div>
       </div>
@@ -172,4 +164,4 @@ function RegisterPage() {
   );
 }
 
-export default RegisterPage;
+export default AdminRegisterPage;

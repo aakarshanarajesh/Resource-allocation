@@ -181,6 +181,9 @@ function LoginPage({ onLogin }) {
           <p className="auth-link">
             Don't have an account? <Link to="/register">Sign up</Link>
           </p>
+          <p className="auth-link">
+            Need an admin account? <Link to="/admin-register">Create admin</Link>
+          </p>
         </div>
       </div>
     </div>

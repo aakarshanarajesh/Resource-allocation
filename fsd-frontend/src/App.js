@@ -4,6 +4,7 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
+import AdminRegisterPage from './pages/AdminRegisterPage';
 import UserDashboard from './pages/UserDashboard';
 import AdminDashboard from './pages/AdminDashboard';
 import ForgotPassword from './pages/ForgotPassword';
@@ -79,6 +80,10 @@ function App() {
           <Route 
             path="/register" 
             element={isLoggedIn ? <Navigate to={userRole === 'ADMIN' ? '/admin' : '/user'} /> : <RegisterPage />} 
+          />
+          <Route
+            path="/admin-register"
+            element={isLoggedIn ? <Navigate to={userRole === 'ADMIN' ? '/admin' : '/user'} /> : <AdminRegisterPage />}
           />
           <Route
             path="/forgot-password"
