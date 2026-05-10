@@ -708,6 +708,36 @@
   color: #333;
 }
 
+.approved-quantity {
+  display: block;
+  margin-top: 4px;
+  color: #28a745;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.approve-quantity-input {
+  width: 72px;
+  padding: 6px 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  color: #333;
+  font-size: 12px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.approve-quantity-input:focus {
+  outline: none;
+  border-color: #28a745;
+  box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.12);
+}
+
+.approve-quantity-input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 /* No Data Message */
 .no-data {
   text-align: center;

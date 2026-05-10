@@ -20,6 +20,12 @@ const RequestSchema = new mongoose.Schema({
     min: 1,
   },
 
+  approvedQuantity: {
+    type: Number,
+    default: 0,
+    min: 0,
+  },
+
   status: {
     type: String,
     enum: ["PENDING", "APPROVED", "REJECTED"],

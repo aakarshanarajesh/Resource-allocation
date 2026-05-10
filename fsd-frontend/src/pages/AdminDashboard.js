@@ -16,6 +16,7 @@ function AdminDashboard() {
   const [showResourceForm, setShowResourceForm] = useState(false);
   const [newResource, setNewResource] = useState({ name: '', description: '', totalUnits: 1 });
   const [requestFilter, setRequestFilter] = useState('all');
+  const [approvalQuantities, setApprovalQuantities] = useState({});
 
   useEffect(() => {
     fetchAllData();
@@ -85,11 +86,13 @@ function AdminDashboard() {
     }
   };
 
-  const handleApproveRequest = async (requestId) => {
+  const handleApproveRequest = async (request) => {
     try {
-      await requestService.approveRequest(requestId);
-      showSuccess('Request approved successfully');
+      const approvedQuantity = approvalQuantities[request._id] || request.quantity || 1;
+      await requestService.approveRequest(request._id, approvedQuantity);
+      showSuccess(`Approved ${approvedQuantity} unit(s)`);
       await fetchRequests();
+      await fetchResources();
       await fetchStats();
     } catch (err) {
       showError(err.response?.data?.message || 'Failed to approve request');
@@ -373,7 +376,14 @@ function AdminDashboard() {
                       <tr key={request._id}>
                         <td>{request.user?.name || 'N/A'}</td>
                         <td>{request.resource?.name || 'N/A'}</td>
-                        <td className="quantity-col">{request.quantity || 1} unit(s)</td>
+                        <td className="quantity-col">
+                          {request.quantity || 1} requested
+                          {request.status === 'APPROVED' && (
+                            <span className="approved-quantity">
+                              {request.approvedQuantity || request.quantity || 1} approved
+                            </span>
+                          )}
+                        </td>
                         <td>
                           <span className={`status-badge ${getStatusColor(request.status)}`}>
                             {getStatusText(request.status)}
@@ -383,9 +393,29 @@ function AdminDashboard() {
                         <td>
                           {request.status === 'PENDING' && (
                             <div className="action-buttons">
+                              <input
+                                type="number"
+                                className="approve-quantity-input"
+                                min="1"
+                                max={Math.min(request.quantity || 1, request.resource?.availableUnits || request.quantity || 1)}
+                                value={approvalQuantities[request._id] || request.quantity || 1}
+                                disabled={(request.resource?.availableUnits || 0) < 1}
+                                onChange={(e) => {
+                                  const requested = request.quantity || 1;
+                                  const available = request.resource?.availableUnits || requested;
+                                  const maxApproval = Math.min(requested, available);
+                                  const nextValue = Math.max(1, Math.min(parseInt(e.target.value, 10) || 1, maxApproval));
+                                  setApprovalQuantities({
+                                    ...approvalQuantities,
+                                    [request._id]: nextValue,
+                                  });
+                                }}
+                                title="Units to approve"
+                              />
                               <button 
                                 className="btn-success btn-small"
-                                onClick={() => handleApproveRequest(request._id)}
+                                onClick={() => handleApproveRequest(request)}
+                                disabled={(request.resource?.availableUnits || 0) < 1}
                                 title="Approve this request"
                               >
                                 ✓ Approve

@@ -75,7 +75,7 @@ class RequestService {
   }
 
   // Approve request and reduce available units
-  async approveRequest(requestId) {
+  async approveRequest(requestId, approvedQuantity) {
     const request = await Request.findById(requestId)
       .populate('user', 'name email')
       .populate('resource', 'name description totalUnits availableUnits');
@@ -88,18 +88,28 @@ class RequestService {
       throw new Error(`Cannot approve request with status: ${request.status}`);
     }
 
+    const quantityToApprove = parseInt(approvedQuantity || request.quantity, 10);
+
+    if (!Number.isInteger(quantityToApprove) || quantityToApprove < 1) {
+      throw new Error('Approved quantity must be at least 1');
+    }
+
+    if (quantityToApprove > request.quantity) {
+      throw new Error(`Cannot approve more than requested. Requested: ${request.quantity}`);
+    }
+
     // Final availability check before approval
-    if (request.resource.availableUnits < request.quantity) {
-      throw new Error(`Cannot approve: Only ${request.resource.availableUnits} units available, but ${request.quantity} requested`);
+    if (request.resource.availableUnits < quantityToApprove) {
+      throw new Error(`Cannot approve: Only ${request.resource.availableUnits} units available, but ${quantityToApprove} selected`);
     }
 
     // Reduce available units
-    await resourceService.reduceAvailableUnits(request.resource._id, request.quantity);
+    await resourceService.reduceAvailableUnits(request.resource._id, quantityToApprove);
 
     // Update request status
     const updatedRequest = await Request.findByIdAndUpdate(
       requestId,
-      { status: 'APPROVED' },
+      { status: 'APPROVED', approvedQuantity: quantityToApprove },
       { new: true }
     ).populate('user', 'name email').populate('resource', 'name description totalUnits availableUnits');
 
@@ -107,7 +117,7 @@ class RequestService {
     await Notification.create({
       user: request.user._id,
       title: 'Request Approved',
-      message: `Your request for ${request.quantity} unit(s) of ${request.resource.name} has been approved`,
+      message: `Your request for ${request.resource.name} has been approved for ${quantityToApprove} of ${request.quantity} requested unit(s)`,
       type: 'APPROVAL',
       relatedRequest: requestId,
     });
@@ -116,7 +126,7 @@ class RequestService {
     await ActivityLog.create({
       userId: request.user._id,
       action: 'REQUEST_APPROVED',
-      description: `Request approved for ${request.quantity} unit(s) of ${request.resource.name}`,
+      description: `Request approved for ${quantityToApprove} of ${request.quantity} requested unit(s) of ${request.resource.name}`,
       entityType: 'Request',
       entityId: requestId,
     });

@@ -64,7 +64,8 @@ exports.getRequest = asyncHandler(async (req, res) => {
 // ADMIN approves request and reduces available units
 exports.approveRequest = asyncHandler(async (req, res) => {
   try {
-    const request = await requestService.approveRequest(req.params.id);
+    const approvedQuantity = req.body.approvedQuantity || req.body.quantity;
+    const request = await requestService.approveRequest(req.params.id, approvedQuantity);
 
     res.json({
       success: true,

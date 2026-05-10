@@ -85,7 +85,7 @@ export const requestService = {
   getRequest: (id) => api.get(`/api/requests/${id}`),
   getUserRequests: () => api.get('/api/requests/my-requests'),
   createRequest: (resourceId, quantity = 1) => api.post('/api/requests', { resourceId, quantity }),
-  approveRequest: (id) => api.put(`/api/requests/${id}/approve`),
+  approveRequest: (id, approvedQuantity) => api.put(`/api/requests/${id}/approve`, { approvedQuantity }),
   rejectRequest: (id) => api.put(`/api/requests/${id}/reject`),
 };
 
