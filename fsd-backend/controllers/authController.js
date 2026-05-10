@@ -77,17 +77,6 @@ exports.logout = asyncHandler(async (req, res) => {
 exports.registerAdmin = asyncHandler(async (req, res) => {
   const { name, email, password } = req.body;
 
-  // Check if admin secret key is provided
-  const adminSecret = String(req.headers['x-admin-secret'] || '').trim();
-  const validAdminSecrets = new Set([
-    process.env.ADMIN_SECRET,
-    'admin123secure',
-  ].filter(Boolean));
-
-  if (!validAdminSecrets.has(adminSecret)) {
-    throw new AppError("Invalid admin credentials", 403);
-  }
-
   const user = await authService.registerUser(name, email, password, 'ADMIN');
 
   res.status(201).json({
