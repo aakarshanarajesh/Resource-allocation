@@ -9,14 +9,13 @@ const NotificationCenter = ({ isOpen, onClose }) => {
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(false);
-  const [page, setPage] = useState(1);
 
   useEffect(() => {
     if (isOpen) {
       fetchNotifications();
       fetchUnreadCount();
     }
-  }, [isOpen, page]);
+  }, [isOpen]);
 
   const fetchNotifications = async () => {
     setLoading(true);

@@ -37,14 +37,6 @@ function Navbar({ userRole, onLogout }) {
     setNotificationOpen(!notificationOpen);
   };
 
-  const handleAdminDashboard = () => {
-    navigate('/admin');
-  };
-
-  const handleUserDashboard = () => {
-    navigate('/user');
-  };
-
   return (
     <>
       <nav className="navbar">
