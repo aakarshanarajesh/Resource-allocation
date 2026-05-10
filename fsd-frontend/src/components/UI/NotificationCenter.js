@@ -20,7 +20,7 @@ const NotificationCenter = ({ isOpen, onClose }) => {
   const fetchNotifications = async () => {
     setLoading(true);
     try {
-      const response = await notificationService.getNotifications(page, 10);
+      const response = await notificationService.getNotifications(1, 10);
       setNotifications(response.data.notifications);
     } catch (error) {
       showError('Failed to load notifications');
