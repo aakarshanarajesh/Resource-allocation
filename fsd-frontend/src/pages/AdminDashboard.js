@@ -393,12 +393,9 @@ function AdminDashboard() {
                         <td>
                           {request.status === 'PENDING' && (
                             <div className="action-buttons">
-                              <input
-                                type="number"
-                                className="approve-quantity-input"
-                                min="1"
-                                max={Math.min(request.quantity || 1, request.resource?.availableUnits || request.quantity || 1)}
-                                value={approvalQuantities[request._id] || request.quantity || 1}
+                              <select
+                                className="approve-quantity-select"
+                                value={approvalQuantities[request._id] || Math.min(request.quantity || 1, request.resource?.availableUnits || request.quantity || 1)}
                                 disabled={(request.resource?.availableUnits || 0) < 1}
                                 onChange={(e) => {
                                   const requested = request.quantity || 1;
@@ -411,7 +408,16 @@ function AdminDashboard() {
                                   });
                                 }}
                                 title="Units to approve"
-                              />
+                              >
+                                {Array.from(
+                                  { length: Math.min(request.quantity || 1, request.resource?.availableUnits || request.quantity || 1) },
+                                  (_, index) => index + 1
+                                ).map((quantity) => (
+                                  <option key={quantity} value={quantity}>
+                                    Approve {quantity} unit{quantity > 1 ? 's' : ''}
+                                  </option>
+                                ))}
+                              </select>
                               <button 
                                 className="btn-success btn-small"
                                 onClick={() => handleApproveRequest(request)}

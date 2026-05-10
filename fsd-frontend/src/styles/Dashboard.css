@@ -716,24 +716,24 @@
   font-weight: 700;
 }
 
-.approve-quantity-input {
-  width: 72px;
+.approve-quantity-select {
+  min-width: 128px;
   padding: 6px 8px;
   border: 1px solid #ddd;
   border-radius: 4px;
+  background-color: white;
   color: #333;
   font-size: 12px;
   font-weight: 700;
-  text-align: center;
 }
 
-.approve-quantity-input:focus {
+.approve-quantity-select:focus {
   outline: none;
   border-color: #28a745;
   box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.12);
 }
 
-.approve-quantity-input:disabled {
+.approve-quantity-select:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
