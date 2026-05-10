@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+const API_BASE_URL = (process.env.REACT_APP_API_URL || 'http://localhost:5000').replace(/\/api\/?$/, '');
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -30,7 +30,7 @@ api.interceptors.response.use(
 
       try {
         const refreshToken = localStorage.getItem('refreshToken');
-        const response = await axios.post(`${API_BASE_URL}/auth/refresh-token`, {
+        const response = await axios.post(`${API_BASE_URL}/api/auth/refresh-token`, {
           refreshToken,
         });
 
@@ -56,55 +56,55 @@ api.interceptors.response.use(
 
 // Auth services
 export const authService = {
-  login: (email, password) => api.post('/auth/login', { email, password }),
-  register: (name, email, password) => api.post('/auth/register', { name, email, password }),
-  refreshToken: (refreshToken) => api.post('/auth/refresh-token', { refreshToken }),
-  getCurrentUser: () => api.get('/auth/me'),
-  logout: () => api.post('/auth/logout'),
-  forgotPassword: (email) => api.post('/auth/forgot-password', { email }),
-  resetPassword: (token, password) => api.post(`/auth/reset-password/${token}`, { password }),
+  login: (email, password) => api.post('/api/auth/login', { email, password }),
+  register: (name, email, password) => api.post('/api/auth/register', { name, email, password }),
+  refreshToken: (refreshToken) => api.post('/api/auth/refresh-token', { refreshToken }),
+  getCurrentUser: () => api.get('/api/auth/me'),
+  logout: () => api.post('/api/auth/logout'),
+  forgotPassword: (email) => api.post('/api/auth/forgot-password', { email }),
+  resetPassword: (token, password) => api.post(`/api/auth/reset-password/${token}`, { password }),
 };
 
 // Resource services
 export const resourceService = {
   getAllResources: (page = 1, limit = 10) => 
-    api.get('/resources', { params: { page, limit } }),
-  getAvailableResources: () => api.get('/resources/available'),
-  getResource: (id) => api.get(`/resources/${id}`),
-  createResource: (data) => api.post('/resources', data),
-  updateResource: (id, data) => api.put(`/resources/${id}`, data),
-  deleteResource: (id) => api.delete(`/resources/${id}`),
+    api.get('/api/resources', { params: { page, limit } }),
+  getAvailableResources: () => api.get('/api/resources/available'),
+  getResource: (id) => api.get(`/api/resources/${id}`),
+  createResource: (data) => api.post('/api/resources', data),
+  updateResource: (id, data) => api.put(`/api/resources/${id}`, data),
+  deleteResource: (id) => api.delete(`/api/resources/${id}`),
 };
 
 // Request services
 export const requestService = {
   getAllRequests: (page = 1, limit = 10, status = null) =>
-    api.get('/requests', { params: { page, limit, status } }),
-  getRequest: (id) => api.get(`/requests/${id}`),
-  getUserRequests: () => api.get('/requests/my-requests'),
-  createRequest: (resourceId, quantity = 1) => api.post('/requests', { resourceId, quantity }),
-  approveRequest: (id) => api.put(`/requests/${id}/approve`),
-  rejectRequest: (id) => api.put(`/requests/${id}/reject`),
+    api.get('/api/requests', { params: { page, limit, status } }),
+  getRequest: (id) => api.get(`/api/requests/${id}`),
+  getUserRequests: () => api.get('/api/requests/my-requests'),
+  createRequest: (resourceId, quantity = 1) => api.post('/api/requests', { resourceId, quantity }),
+  approveRequest: (id) => api.put(`/api/requests/${id}/approve`),
+  rejectRequest: (id) => api.put(`/api/requests/${id}/reject`),
 };
 
 // Notification services
 export const notificationService = {
   getNotifications: (page = 1, limit = 10) =>
-    api.get('/notifications', { params: { page, limit } }),
-  getUnreadCount: () => api.get('/notifications/unread/count'),
-  markAsRead: (notificationId) => api.put(`/notifications/${notificationId}/read`),
-  markAllAsRead: () => api.put('/notifications/mark-all/read'),
-  deleteNotification: (notificationId) => api.delete(`/notifications/${notificationId}`),
+    api.get('/api/notifications', { params: { page, limit } }),
+  getUnreadCount: () => api.get('/api/notifications/unread/count'),
+  markAsRead: (notificationId) => api.put(`/api/notifications/${notificationId}/read`),
+  markAllAsRead: () => api.put('/api/notifications/mark-all/read'),
+  deleteNotification: (notificationId) => api.delete(`/api/notifications/${notificationId}`),
 };
 
 // Analytics services
 export const analyticsService = {
-  getDashboardStats: () => api.get('/analytics/dashboard'),
-  getRequestStats: () => api.get('/analytics/requests'),
-  getResourceStats: () => api.get('/analytics/resources'),
-  getUserActivity: (days = 30) => api.get('/analytics/activity', { params: { days } }),
-  getRecentActivity: (limit = 20) => api.get('/analytics/logs', { params: { limit } }),
-  getRequestTrends: () => api.get('/analytics/trends'),
+  getDashboardStats: () => api.get('/api/analytics/dashboard'),
+  getRequestStats: () => api.get('/api/analytics/requests'),
+  getResourceStats: () => api.get('/api/analytics/resources'),
+  getUserActivity: (days = 30) => api.get('/api/analytics/activity', { params: { days } }),
+  getRecentActivity: (limit = 20) => api.get('/api/analytics/logs', { params: { limit } }),
+  getRequestTrends: () => api.get('/api/analytics/trends'),
 };
 
 export default api;
