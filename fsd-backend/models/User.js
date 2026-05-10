@@ -17,6 +17,15 @@ const UserSchema = new mongoose.Schema({
     required: true,
   },
 
+  // Password reset token (hashed) and expiry
+  resetPasswordToken: {
+    type: String,
+  },
+
+  resetPasswordExpire: {
+    type: Date,
+  },
+
   role: {
     type: String,
     enum: ["USER", "ADMIN"],

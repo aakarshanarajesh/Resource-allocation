@@ -1,4 +1,5 @@
 const authService = require("../services/authService");
+const sendEmail = require("../utils/sendEmail");
 const { asyncHandler, AppError } = require("../utils/errorHandler");
 
 // REGISTER
@@ -89,4 +90,42 @@ exports.registerAdmin = asyncHandler(async (req, res) => {
     message: "Admin user registered successfully",
     user,
   });
+});
+
+// FORGOT PASSWORD - generate token and send email
+exports.forgotPassword = asyncHandler(async (req, res) => {
+  const { email } = req.body;
+  if (!email) {
+    throw new AppError('Email is required', 400);
+  }
+
+  const resetToken = await authService.generatePasswordResetToken(email);
+
+  const clientUrl = process.env.CLIENT_URL || `${req.protocol}://${req.get('host')}`;
+  const resetUrl = `${clientUrl}/reset-password/${resetToken}`;
+
+  const message = `<p>You requested a password reset. Click the link below to reset your password (expires in 1 hour):</p>
+    <p><a href="${resetUrl}">Reset Password</a></p>`;
+
+  await sendEmail({ to: email, subject: 'Password reset', html: message });
+
+  res.json({ success: true, message: 'Password reset email sent if user exists' });
+});
+
+// RESET PASSWORD - verify token and set new password
+exports.resetPassword = asyncHandler(async (req, res) => {
+  const { token } = req.params;
+  const { password } = req.body;
+
+  if (!token) {
+    throw new AppError('Token is required', 400);
+  }
+
+  if (!password) {
+    throw new AppError('New password is required', 400);
+  }
+
+  await authService.resetPassword(token, password);
+
+  res.json({ success: true, message: 'Password has been reset successfully' });
 });

@@ -170,7 +170,7 @@ function LoginPage({ onLogin }) {
             </div>
 
             <div className="forgot-password">
-              <a href="#forgot">Forgot password?</a>
+              <Link to="/forgot-password">Forgot password?</Link>
             </div>
 
             <button type="submit" disabled={loading}>

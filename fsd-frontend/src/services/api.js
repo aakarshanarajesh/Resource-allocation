@@ -61,6 +61,8 @@ export const authService = {
   refreshToken: (refreshToken) => api.post('/auth/refresh-token', { refreshToken }),
   getCurrentUser: () => api.get('/auth/me'),
   logout: () => api.post('/auth/logout'),
+  forgotPassword: (email) => api.post('/auth/forgot-password', { email }),
+  resetPassword: (token, password) => api.post(`/auth/reset-password/${token}`, { password }),
 };
 
 // Resource services

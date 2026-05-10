@@ -6,6 +6,8 @@ import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import UserDashboard from './pages/UserDashboard';
 import AdminDashboard from './pages/AdminDashboard';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 import Navbar from './components/Navbar';
 import './styles/App.css';
 
@@ -77,6 +79,14 @@ function App() {
           <Route 
             path="/register" 
             element={isLoggedIn ? <Navigate to={userRole === 'ADMIN' ? '/admin' : '/user'} /> : <RegisterPage />} 
+          />
+          <Route
+            path="/forgot-password"
+            element={isLoggedIn ? <Navigate to={userRole === 'ADMIN' ? '/admin' : '/user'} /> : <ForgotPassword />}
+          />
+          <Route
+            path="/reset-password/:token"
+            element={isLoggedIn ? <Navigate to={userRole === 'ADMIN' ? '/admin' : '/user'} /> : <ResetPassword />}
           />
           <Route 
             path="/user" 

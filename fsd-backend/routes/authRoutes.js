@@ -8,6 +8,8 @@ const {
   getCurrentUser,
   logout,
   registerAdmin,
+  forgotPassword,
+  resetPassword,
 } = require("../controllers/authController");
 
 const { authMiddleware } = require("../middleware/authMiddleware");
@@ -23,6 +25,8 @@ router.post("/register", registerLimiter, validateRegister, validate, register);
 router.post("/login", loginLimiter, validateLogin, validate, login);
 router.post("/refresh-token", refreshToken);
 router.post("/register-admin", registerLimiter, validateRegister, validate, registerAdmin);
+router.post("/forgot-password", forgotPassword);
+router.post("/reset-password/:token", resetPassword);
 
 // Protected routes
 router.get("/me", authMiddleware, getCurrentUser);
