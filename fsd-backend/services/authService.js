@@ -3,12 +3,15 @@ const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
 const User = require('../models/User');
 
+const JWT_SECRET = process.env.JWT_SECRET || 'mysecretkey123';
+const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || 'refresh_secretkey_change_this';
+
 class AuthService {
   // Generate access token
   generateAccessToken(userId, role) {
     return jwt.sign(
       { id: userId, role },
-      process.env.JWT_SECRET,
+      JWT_SECRET,
       { expiresIn: process.env.JWT_EXPIRE || '1d' }
     );
   }
@@ -17,7 +20,7 @@ class AuthService {
   generateRefreshToken(userId) {
     return jwt.sign(
       { id: userId },
-      process.env.JWT_REFRESH_SECRET,
+      JWT_REFRESH_SECRET,
       { expiresIn: process.env.JWT_REFRESH_EXPIRE || '7d' }
     );
   }
@@ -25,7 +28,7 @@ class AuthService {
   // Verify tokens
   verifyAccessToken(token) {
     try {
-      return jwt.verify(token, process.env.JWT_SECRET);
+      return jwt.verify(token, JWT_SECRET);
     } catch (error) {
       throw new Error('Invalid or expired access token');
     }
@@ -33,7 +36,7 @@ class AuthService {
 
   verifyRefreshToken(token) {
     try {
-      return jwt.verify(token, process.env.JWT_REFRESH_SECRET);
+      return jwt.verify(token, JWT_REFRESH_SECRET);
     } catch (error) {
       throw new Error('Invalid or expired refresh token');
     }
